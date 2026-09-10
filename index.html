@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mapa IRL</title>
+
+<link
+rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+.info {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 9999;
+    background: rgba(0,0,0,.75);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.leaflet-control-attribution {
+    font-size: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div class="info" id="status">
+📍 Procurando GPS...
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+let map = L.map('map').setView([-23.5505, -46.6333], 15);
+
+L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }
+).addTo(map);
+
+let marker = null;
+
+function gpsSuccess(position) {
+
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+
+    const speed = position.coords.speed;
+
+    if (marker === null) {
+
+        marker = L.marker([lat, lon]).addTo(map);
+
+    } else {
+
+        marker.setLatLng([lat, lon]);
+
+    }
+
+    map.setView([lat, lon], 17);
+
+    let velocidade = 0;
+
+    if (speed !== null && speed >= 0) {
+        velocidade = speed * 3.6;
+    }
+
+    document.getElementById("status").innerHTML =
+        "📍 GPS conectado<br>" +
+        "🚴 " + velocidade.toFixed(1) + " km/h";
+}
+
+function gpsError(error) {
+
+    document.getElementById("status").innerHTML =
+        "❌ Não foi possível acessar o GPS<br>" +
+        "Ative a localização do celular.";
+}
+
+navigator.geolocation.watchPosition(
+    gpsSuccess,
+    gpsError,
+    {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 10000
+    }
+);
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS IRL</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 40px;
+    }
+
+    #status {
+      font-size: 20px;
+      margin-bottom: 25px;
+    }
+
+    #velocidade {
+      font-size: 60px;
+      font-weight: bold;
+    }
+
+    .info {
+      font-size: 18px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="status">Aguardando GPS...</div>
+
+  <div id="velocidade">0 km/h</div>
+
+  <div class="info" id="coordenadas">
+    Localização: aguardando...
+  </div>
+
+  <script>
+    if ("geolocation" in navigator) {
+
+      navigator.geolocation.watchPosition(
+
+        function(position) {
+
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+
+          let velocidade = position.coords.speed;
+
+          if (velocidade === null || velocidade < 0) {
+            velocidade = 0;
+          }
+
+          velocidade = velocidade * 3.6;
+
+          document.getElementById("status").textContent =
+            "GPS conectado";
+
+          document.getElementById("velocidade").textContent =
+            Math.round(velocidade) + " km/h";
+
+          document.getElementById("coordenadas").textContent =
+            "Lat: " + latitude.toFixed(6) +
+            " | Lon: " + longitude.toFixed(6);
+        },
+
+        function(error) {
+
+          document.getElementById("status").textContent =
+            "Não foi possível acessar o GPS: " + error.message;
+        },
+
+        {
+          enableHighAccuracy: true,
+          maximumAge: 1000,
+          timeout: 10000
+        }
+      );
+
+    } else {
+
+      document.getElementById("status").textContent =
+        "Este navegador não suporta GPS.";
+    }
+  </script>
+
+</body>
+</html>
